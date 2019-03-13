@@ -68,42 +68,34 @@ def tobs():
     last_date = last_date[0][0]
     last_date = dt.datetime.strptime(last_date, '%Y-%m-%d').date()
     year_before_date = ((last_date - relativedelta(years = 1)).strftime('%Y-%m-%d'))
-    query = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date >= year_before_date).order_by(Measurement.date.desc()).all()
+    query = session.query(Measurement.tobs).filter(Measurement.date >= year_before_date).order_by(Measurement.date.desc()).all()
     data = list(np.ravel(query))
     return jsonify(data)
 
 @app.route("/api/v1.0/<start>")
 def startDate(start):
-    tobs = session.query(Measurement.tobs).\
-    filter(Measurement.date >= start).all()
-
-    startData_df = pd.DataFrame(tobs)
-    
-    tmin = startData_df.min()
-    tavg = startData_df.mean()
-    tmax = startData_df.max()
-    all = [tmin, tavg, tmax]
-    all2 = list(np.ravel(all))
-
-    return jsonify(all2)
+    print("Server received request for 'start' page...")
+    query = session.query(Measurement.tobs).filter(Measurement.date >= start).all()
+    df = pd.DataFrame(query)
+    tmin = df.min()
+    tavg = df.mean()
+    tmax = df.max()
+    data = [tmin, tavg, tmax]
+    data = list(np.ravel(data))
+    return jsonify(data)
 
 
 @app.route("/api/v1.0/<start>/<end>")
 def startANDendDate(start, end):
-    tobs = session.query(Measurement.tobs).\
-    filter(Measurement.date >= start).\
-    filter(Measurement.date <= end).all()
-
-    startendData_df = pd.DataFrame(tobs)
-    
-    tmin = startendData_df.min()
-    tavg = startendData_df.mean()
-    tmax = startendData_df.max()
-    all = [tmin, tavg, tmax]
-    all2 = list(np.ravel(all))
-
-    return jsonify(all2)
-
+    print("Server received request for 'start/end' page...")
+    query = session.query(Measurement.tobs).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
+    df = pd.DataFrame(query) 
+    tmin = df.min()
+    tavg = df.mean()
+    tmax = df.max()
+    data = [tmin, tavg, tmax]
+    data = list(np.ravel(data))
+    return jsonify(data)
 
 if __name__ == "__main__":
     app.run(debug=True)
